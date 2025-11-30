@@ -944,17 +944,40 @@ body {
 }
 
 @media (max-width: 600px) {
+    .disc-quadrant-section {
+        padding: 20px 16px;
+    }
+    
+    .disc-quadrant-title {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    
     .disc-quadrant-container {
         max-width: 100%;
+        aspect-ratio: auto;
+    }
+    
+    /* 모바일에서는 축 레이블 숨기고 단순화 */
+    .quadrant-axis,
+    .quadrant-label {
+        display: none;
     }
     
     .quadrant-grid {
-        padding: 32px 20px;
-        gap: 6px;
+        padding: 0;
+        gap: 8px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
     }
     
     .quadrant-box {
-        padding: 10px;
+        padding: 12px;
+    }
+    
+    .quadrant-header {
+        gap: 6px;
+        margin-bottom: 6px;
     }
     
     .quadrant-emoji {
@@ -962,15 +985,44 @@ body {
     }
     
     .quadrant-type-name {
-        font-size: 12px;
+        font-size: 11px;
     }
     
-    .quadrant-keywords,
+    .quadrant-keywords {
+        font-size: 9px;
+        margin-bottom: 4px;
+    }
+    
     .quadrant-traits {
+        font-size: 9px;
+        line-height: 1.4;
+    }
+    
+    .quadrant-traits li {
+        margin-bottom: 1px;
+    }
+}
+
+/* 아주 작은 화면 (360px 이하) */
+@media (max-width: 360px) {
+    .quadrant-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .quadrant-box {
+        padding: 14px;
+    }
+    
+    .quadrant-type-name {
+        font-size: 13px;
+    }
+    
+    .quadrant-keywords {
         font-size: 10px;
     }
     
-    .quadrant-label {
+    .quadrant-traits {
         font-size: 10px;
     }
 }
@@ -1166,6 +1218,10 @@ body {
         padding: 32px 24px;
     }
     
+    .logo-subtitle {
+        font-size: 13px;
+    }
+    
     .test-header,
     .question-card,
     .result-section {
@@ -1178,6 +1234,65 @@ body {
     
     .result-type-letter {
         font-size: 56px;
+    }
+    
+    .result-subtype {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .subtype-badge {
+        font-size: 14px;
+        padding: 4px 12px;
+    }
+    
+    .subtype-name {
+        font-size: 13px;
+    }
+    
+    /* 점수 분포 모바일 */
+    .score-bar-label {
+        flex-wrap: wrap;
+    }
+    
+    .score-bar-label .type-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .score-bar-label .type-name {
+        font-size: 12px;
+        min-width: 40px;
+    }
+    
+    /* 나와 잘 맞는 유형 모바일 */
+    .compatible-type-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .compatible-type-main .type-badge {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .compatible-type-main .compatible-subtype {
+        font-size: 13px;
+    }
+    
+    .compatible-type-main .compatible-reason {
+        font-size: 12px;
+    }
+    
+    .teammate-inline {
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .teammate-names-small {
+        justify-content: flex-start;
     }
     
     .admin-header {
@@ -1202,6 +1317,47 @@ body {
     
     .admin-table {
         min-width: 750px;
+    }
+}
+
+@media (max-width: 480px) {
+    .result-container {
+        padding: 0 12px;
+    }
+    
+    .result-type-card {
+        padding: 24px 16px;
+        border-radius: var(--radius-md);
+    }
+    
+    .result-type-letter {
+        font-size: 48px;
+    }
+    
+    .result-type-name {
+        font-size: 18px;
+    }
+    
+    .result-type-summary {
+        font-size: 14px;
+    }
+    
+    .result-section {
+        padding: 16px;
+        border-radius: var(--radius-sm);
+    }
+    
+    .result-section-title {
+        font-size: 15px;
+    }
+    
+    .result-section-content {
+        font-size: 13px;
+    }
+    
+    .result-section-content li {
+        padding-left: 16px;
+        margin-bottom: 6px;
     }
 }
 
