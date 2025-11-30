@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB글로벌칩 DISC 진단</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 로그인 화면 -->
+    <section id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="36" stroke="currentColor" stroke-width="3"/>
+                        <path d="M25 40 L35 50 L55 30" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h1 class="logo-text">DB글로벌칩 DISC 진단</h1>
+                <p class="logo-subtitle">DISC는 서로의 일하는 스타일을 이해하는 데 도움이 되는 간단한 진단입니다.</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="input-group">
+                    <label for="department">부서명</label>
+                    <input type="text" id="department" name="department" placeholder="예: 경영지원팀" required>
+                </div>
+                <div class="input-group">
+                    <label for="name">이름</label>
+                    <input type="text" id="name" name="name" placeholder="예: 홍길동" required>
+                </div>
+                <button type="submit" class="btn-primary">진단 시작하기</button>
+            </form>
+            <a href="admin.html" class="admin-link">관리자 페이지 →</a>
+        </div>
+    </section>
+
+    <!-- 진단 화면 -->
+    <section id="test-screen" class="screen">
+        <div class="test-container">
+            <div class="test-header">
+                <h2>DISC 진단</h2>
+                <p class="test-progress">진행률: <span id="progress-text">0</span>/12</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <form id="test-form" class="test-form">
+                <!-- 문항들이 JavaScript로 동적 생성됩니다 -->
+            </form>
+            <div class="test-footer">
+                <button type="button" id="submit-test" class="btn-primary" disabled>결과 보기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 결과 화면 -->
+    <section id="result-screen" class="screen">
+        <div class="result-container">
+            <div class="result-header">
+                <h2>진단 결과</h2>
+            </div>
+            <div id="result-content" class="result-content">
+                <!-- 결과가 JavaScript로 동적 생성됩니다 -->
+            </div>
+            <div class="result-footer">
+                <button type="button" id="retry-test" class="btn-secondary">다시 테스트하기</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 로딩 오버레이 -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>결과를 분석 중입니다...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

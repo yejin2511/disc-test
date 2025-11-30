@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - DB글로벌칩 DISC 진단</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 관리자 로그인 화면 */
+        .admin-login-screen {
+            min-height: 100vh;
+            background: var(--db-green-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .admin-login-container {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .admin-login-title {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .admin-login-title h1 {
+            color: var(--db-green-primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .admin-login-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .admin-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .admin-login-error {
+            padding: 12px;
+            background: #FFEBEE;
+            color: #C62828;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        /* 관리자 대시보드 */
+        .admin-dashboard {
+            display: none;
+            min-height: 100vh;
+            background: var(--bg-secondary);
+        }
+        
+        .admin-dashboard.active {
+            display: block;
+        }
+        
+        /* 엑셀 다운로드 버튼 */
+        .btn-excel {
+            padding: 10px 20px;
+            background: #217346;
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-excel:hover {
+            background: #1a5c38;
+        }
+        
+        .btn-excel svg {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 관리자 로그인 화면 -->
+    <div id="admin-login-screen" class="admin-login-screen">
+        <div class="admin-login-container">
+            <div class="admin-login-title">
+                <h1>🔐 관리자 로그인</h1>
+                <p>DB글로벌칩 DISC 진단 관리 페이지</p>
+            </div>
+            <form id="admin-login-form" class="admin-login-form">
+                <div id="login-error" class="admin-login-error">
+                    부서명 또는 이름이 올바르지 않습니다.
+                </div>
+                <div class="input-group">
+                    <label for="admin-department">부서명</label>
+                    <input type="text" id="admin-department" name="department" placeholder="부서명 입력" required>
+                </div>
+                <div class="input-group">
+                    <label for="admin-name">이름 (사번)</label>
+                    <input type="text" id="admin-name" name="name" placeholder="이름 입력" required>
+                </div>
+                <button type="submit" class="btn-primary">로그인</button>
+            </form>
+            <a href="index.html" class="admin-link" style="margin-top: 24px;">← 진단 페이지로 돌아가기</a>
+        </div>
+    </div>
+
+    <!-- 관리자 대시보드 -->
+    <div id="admin-dashboard" class="admin-dashboard">
+        <div class="admin-container">
+            <header class="admin-header">
+                <div>
+                    <h1>DB글로벌칩 DISC 진단 관리</h1>
+                    <p style="opacity: 0.9; margin-top: 4px; font-size: 14px;">전체 직원 진단 결과 현황</p>
+                </div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <a href="index.html" class="admin-header-link">← 진단 페이지</a>
+                    <button id="logout-btn" class="admin-header-link" style="background: none; border: none; cursor: pointer;">로그아웃</button>
+                </div>
+            </header>
+            
+            <div class="admin-toolbar">
+                <select id="sort-select">
+                    <option value="date-desc">최신순</option>
+                    <option value="date-asc">오래된순</option>
+                    <option value="name-asc">이름순 (ㄱ-ㅎ)</option>
+                    <option value="name-desc">이름순 (ㅎ-ㄱ)</option>
+                    <option value="dept-asc">부서순</option>
+                    <option value="type">유형순</option>
+                </select>
+                <select id="type-filter">
+                    <option value="all">전체 유형</option>
+                    <option value="D">D (주도형)</option>
+                    <option value="I">I (사교형)</option>
+                    <option value="S">S (안정형)</option>
+                    <option value="C">C (신중형)</option>
+                </select>
+                <button class="btn-excel" id="download-excel">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    엑셀 다운로드
+                </button>
+                <button class="btn-secondary" id="clear-data" style="padding: 10px 16px; font-size: 14px;">
+                    데이터 초기화
+                </button>
+                <div class="stats">
+                    총 <strong id="total-count">0</strong>명 진단 완료
+                </div>
+            </div>
+            
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>부서명</th>
+                            <th>진단일시</th>
+                            <th>DISC 유형</th>
+                            <th>하위 유형</th>
+                            <th>점수 분포</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- 데이터가 JavaScript로 동적 생성됩니다 -->
+                    </tbody>
+                </table>
+                
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10,9 9,9 8,9"/>
+                    </svg>
+                    <p>아직 진단 결과가 없습니다.</p>
+                    <p style="font-size: 13px; margin-top: 8px;">직원들이 진단을 완료하면 이곳에 표시됩니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 관리자 인증 정보
+        const ADMIN_CREDENTIALS = {
+            department: '피플팀',
+            name: '20000044'
+        };
+        
+        // DISC 유형별 정보
+        const discTypeInfo = {
+            D: { name: "주도형", fullName: "주도형 (Dominance)" },
+            I: { name: "사교형", fullName: "사교형 (Influence)" },
+            S: { name: "안정형", fullName: "안정형 (Steadiness)" },
+            C: { name: "신중형", fullName: "신중형 (Conscientiousness)" }
+        };
+        
+        // 하위 유형 정보
+        const subTypeInfo = {
+            "Di": "영향력 있는 주도형",
+            "Dc": "분석적 주도형",
+            "Ds": "안정적 주도형",
+            "Id": "추진력 있는 사교형",
+            "Ic": "분석적 사교형",
+            "Is": "안정적 사교형",
+            "Sd": "추진력 있는 안정형",
+            "Si": "사교적 안정형",
+            "Sc": "분석적 안정형",
+            "Cd": "추진력 있는 신중형",
+            "Ci": "사교적 신중형",
+            "Cs": "안정적 신중형"
+        };
+        
+        // DOM Elements
+        const adminLoginScreen = document.getElementById('admin-login-screen');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const tableBody = document.getElementById('table-body');
+        const emptyState = document.getElementById('empty-state');
+        const totalCount = document.getElementById('total-count');
+        const sortSelect = document.getElementById('sort-select');
+        const typeFilter = document.getElementById('type-filter');
+        const clearDataBtn = document.getElementById('clear-data');
+        const downloadExcelBtn = document.getElementById('download-excel');
+        
+        // 로그인 상태 확인
+        function checkAuth() {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (isLoggedIn === 'true') {
+                showDashboard();
+            }
+        }
+        
+        // 대시보드 표시
+        function showDashboard() {
+            adminLoginScreen.style.display = 'none';
+            adminDashboard.classList.add('active');
+            renderTable();
+        }
+        
+        // 로그인 처리
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const department = document.getElementById('admin-department').value.trim();
+            const name = document.getElementById('admin-name').value.trim();
+            
+            if (department === ADMIN_CREDENTIALS.department && name === ADMIN_CREDENTIALS.name) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                loginError.style.display = 'none';
+                showDashboard();
+            } else {
+                loginError.style.display = 'block';
+            }
+        });
+        
+        // 로그아웃
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('adminLoggedIn');
+            adminDashboard.classList.remove('active');
+            adminLoginScreen.style.display = 'flex';
+            document.getElementById('admin-department').value = '';
+            document.getElementById('admin-name').value = '';
+        });
+        
+        // 날짜 포맷팅
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+        
+        // 데이터 로드 및 정렬
+        function loadData() {
+            let records = JSON.parse(localStorage.getItem('discRecords') || '[]');
+            
+            // 유형 필터링
+            const selectedType = typeFilter.value;
+            if (selectedType !== 'all') {
+                records = records.filter(r => r.resultType === selectedType);
+            }
+            
+            // 정렬
+            const sortBy = sortSelect.value;
+            records.sort((a, b) => {
+                switch (sortBy) {
+                    case 'date-desc':
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    case 'date-asc':
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name, 'ko');
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name, 'ko');
+                    case 'dept-asc':
+                        return a.department.localeCompare(b.department, 'ko');
+                    case 'type':
+                        return a.resultType.localeCompare(b.resultType);
+                    default:
+                        return 0;
+                }
+            });
+            
+            return records;
+        }
+        
+        // 테이블 렌더링
+        function renderTable() {
+            const records = loadData();
+            const allRecords = JSON.parse(localStorage.getItem('discRecords') || '[]');
+            
+            totalCount.textContent = allRecords.length;
+            
+            if (records.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            tableBody.innerHTML = records.map(record => {
+                const percentages = record.resultPercentages || {};
+                return `
+                <tr>
+                    <td><strong>${record.name}</strong></td>
+                    <td>${record.department}</td>
+                    <td>${formatDate(record.createdAt)}</td>
+                    <td>
+                        <span class="type-badge type-${record.resultType}">${record.resultType}</span>
+                        <span style="margin-left: 8px; color: var(--text-secondary); font-size: 13px;">
+                            ${discTypeInfo[record.resultType]?.name || ''}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-weight: 600; color: var(--db-green-dark);">${record.subType || '-'}</span>
+                        <span style="display: block; font-size: 12px; color: var(--text-muted);">
+                            ${subTypeInfo[record.subType] || ''}
+                        </span>
+                    </td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">
+                        D:${percentages.D || 0}% I:${percentages.I || 0}% S:${percentages.S || 0}% C:${percentages.C || 0}%
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        
+        // 엑셀 다운로드 (CSV 형식)
+        function downloadExcel() {
+            const records = JSON.parse(localStorage.getItem('discRecords') || '[]');
+            
+            if (records.length === 0) {
+                alert('다운로드할 데이터가 없습니다.');
+                return;
+            }
+            
+            // CSV 헤더
+            const headers = ['이름', '부서명', '진단일시', 'DISC유형', '유형명', '하위유형', '하위유형명', 'D점수(%)', 'I점수(%)', 'S점수(%)', 'C점수(%)'];
+            
+            // CSV 데이터 생성
+            const csvData = records.map(record => {
+                const percentages = record.resultPercentages || {};
+                return [
+                    record.name,
+                    record.department,
+                    formatDate(record.createdAt),
+                    record.resultType,
+                    discTypeInfo[record.resultType]?.name || '',
+                    record.subType || '',
+                    subTypeInfo[record.subType] || '',
+                    percentages.D || 0,
+                    percentages.I || 0,
+                    percentages.S || 0,
+                    percentages.C || 0
+                ].map(field => `"${field}"`).join(',');
+            });
+            
+            // BOM 추가 (한글 깨짐 방지)
+            const BOM = '\uFEFF';
+            const csvContent = BOM + headers.join(',') + '\n' + csvData.join('\n');
+            
+            // 다운로드
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `DISC진단결과_${dateStr}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 이벤트 리스너
+        sortSelect.addEventListener('change', renderTable);
+        typeFilter.addEventListener('change', renderTable);
+        downloadExcelBtn.addEventListener('click', downloadExcel);
+        
+        clearDataBtn.addEventListener('click', () => {
+            if (confirm('모든 진단 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+                localStorage.removeItem('discRecords');
+                renderTable();
+            }
+        });
+        
+        // 초기화
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
