@@ -211,6 +211,9 @@ const subTypeInfo = {
 const GEMINI_API_KEY = "AIzaSyA0eWHTn8K37SzKIAD9KciaIlYL6GupRp4";
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
 
+// Google Sheets API 설정
+const GOOGLE_SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbyB4SPo3xtR10gl06jnlX5VaZ47U395abfpKKPYYU1P5fqFVshC3pgpSdPllQU4W24FWw/exec";
+
 // 상태 관리
 let currentUser = null;
 let answers = {};
@@ -756,7 +759,49 @@ function saveResult(discResult, analysisResult) {
     records.push(record);
     localStorage.setItem('discRecords', JSON.stringify(records));
     
+    // Google Sheets에 저장
+    saveToGoogleSheets(record, counts, percentages);
+    
     return record;
+}
+
+// Google Sheets에 데이터 전송
+async function saveToGoogleSheets(record, counts, percentages) {
+    try {
+        const data = {
+            name: record.name,
+            department: record.department,
+            createdAt: formatDateTime(record.createdAt),
+            resultType: record.resultType,
+            subType: record.subType,
+            counts: counts,
+            percentages: percentages
+        };
+        
+        await fetch(GOOGLE_SHEETS_API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        console.log('Google Sheets에 저장 완료');
+    } catch (error) {
+        console.error('Google Sheets 저장 오류:', error);
+    }
+}
+
+// 날짜 포맷팅 함수
+function formatDateTime(isoString) {
+    const date = new Date(isoString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 // 결과 제출 처리
